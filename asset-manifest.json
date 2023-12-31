@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/durak/static/css/main.7ef563e3.css",
+    "main.js": "/durak/static/js/main.bdf0124b.js",
+    "index.html": "/durak/index.html",
+    "main.7ef563e3.css.map": "/durak/static/css/main.7ef563e3.css.map",
+    "main.bdf0124b.js.map": "/durak/static/js/main.bdf0124b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7ef563e3.css",
+    "static/js/main.bdf0124b.js"
+  ]
+}
