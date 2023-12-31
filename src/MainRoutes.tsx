@@ -18,7 +18,7 @@ const MainRoutes: React.FC = () => {
     {
       id: 1,
       link: "/",
-      element: <HomePage />,
+      element: <PlayTablePage />,
     },
     {
       id: 2,
