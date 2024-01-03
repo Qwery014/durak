@@ -30,6 +30,29 @@
   }
 }
 
+%additionalCards {
+  @extend %card;
+  background-color: #00000030;
+  border: 1px solid #88888875;
+  justify-self: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+  &:hover {
+    background-color: #00000050;
+    svg {
+      fill: #000000;
+    }
+  }
+  svg {
+    width: 50%;
+    fill: #00000090;
+    transition: 0.3s;
+  }
+}
+
 // style
 .table {
   position: fixed;
@@ -46,6 +69,12 @@
   }
   .card {
     @extend %card;
+  }
+  .card-add {
+    @extend %additionalCards;
+  }
+  .card__move-reverse {
+    @extend %additionalCards;
   }
   &__deck {
     position: absolute;
@@ -82,10 +111,10 @@
     }
   }
   .opposite-hand {
-    top: -50px;
-    transform: translateX(-50%) rotateX(180deg);
+    top: 0px;
+    // transform: translateX(-50%) rotateX(180deg);
     .card {
-      transform: rotateY(180deg);
+      // transform: rotateY(180deg);
     }
   }
   &__playground {
@@ -114,7 +143,7 @@
     width: 100px;
     height: 50px;
     position: absolute;
-    bottom: 50px;
+    bottom: 100px;
     left: 50px;
     button {
       width: 100%;

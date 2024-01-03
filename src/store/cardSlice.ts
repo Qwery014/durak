@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { deck, emptyTypeCard, typeCard } from '../helpers/consts'
-import { interfaceAtkAction, interfaceCardsState, interfaceQueueRes, interfaceSortedArrays } from '../helpers/types'
+import { interfaceAtkAction, interfaceCardsState, interfaceChosenCard, interfaceQueueRes, interfaceSortedArrays } from '../helpers/types'
 
 const initialState: interfaceCardsState = {
   deck: [],
@@ -11,6 +11,7 @@ const initialState: interfaceCardsState = {
     player: { card: emptyTypeCard, index: -1 },
     inGameDefInd: -1,
   },
+  chooseAtk: [],
   whoseMove: "",
   trump: "",
   beatenDeck: [],
@@ -21,7 +22,7 @@ export const counterSlice = createSlice({
   initialState,
   reducers: {
     deckShuffling: (state) => {
-      const shuffledDeck: typeCard[] = JSON.parse(JSON.stringify(deck));
+      let shuffledDeck: typeCard[] = JSON.parse(JSON.stringify(deck));
       for (let i = shuffledDeck.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
         [shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]];
@@ -74,31 +75,66 @@ export const counterSlice = createSlice({
     },
 
     atkPlayerAction: (state, action: PayloadAction<interfaceAtkAction>) => {
-      const payload: interfaceAtkAction = action.payload;
+      const { card, index }: interfaceAtkAction = action.payload;
 
-      if (state.inGame.atk.length) {
-        for (let i in state.inGame.atk) {
-          if (
-            state.inGame.atk[i].name.split(" ").slice(0, 1)[0] === payload.card.name.split(" ").slice(0, 1)[0] ||
-            state.inGame.def[i].name.split(" ").slice(0, 1)[0] === payload.card.name.split(" ").slice(0, 1)[0]
-          ) {
-            state.hands.player.splice(payload.index, 1);
-            state.inGame.atk.push(payload.card);
-            break;
-          }
-        }
+      // if (state.inGame.atk.length) {
+      //   for (let i in state.inGame.atk) {
+      //     if (
+      //       state.inGame.atk[i].name.split(" ").slice(0, 1)[0] === card.name.split(" ").slice(0, 1)[0] ||
+      //       state.inGame.def[i].name.split(" ").slice(0, 1)[0] === card.name.split(" ").slice(0, 1)[0]
+      //     ) {
+      //       state.hands.player.splice(index, 1);
+      //       state.inGame.atk.push(card);
+      //       break;
+      //     }
+      //   }
+      // } else {
+      state.hands.player.splice(index, 1);
+      state.inGame.atk.push(card);
+      // }
+    },
+
+    tossCardChoosing: (state, action: PayloadAction<{ index: number, toggle: boolean }>) => {
+      const { index, toggle } = action.payload;
+      if (toggle) {
+        state.chooseAtk.push(index);
       } else {
-        state.hands.player.splice(payload.index, 1);
-        state.inGame.atk.push(payload.card);
+        state.chooseAtk = state.chooseAtk.filter(e => e !== index);
       }
     },
 
-    defCardChoosing: (state, action: PayloadAction<{ card: typeCard, index: number }>) => {
-      const payload = action.payload;
+    tossCardPlayer: (state) => {
+      const atk: typeCard[] = [];
+      const newHandsPlayer: typeCard[] = [];
 
-      if (!(payload.index === state.chooseDef.player.index)) {
-        state.chooseDef.player.card = payload.card;
-        state.chooseDef.player.index = payload.index;
+      for (let i in state.chooseAtk) {
+        atk.push(state.hands.player[state.chooseAtk[i]]);
+      }
+
+      for (let i = 0; i < state.hands.player.length; i++) {
+        if (!state.chooseAtk.includes(i)) {
+          newHandsPlayer.push(state.hands.player[i]);
+        }
+      }
+
+      state.hands.player = newHandsPlayer;
+      state.inGame.atk.push(...atk);
+
+      state.chooseAtk = [];
+      state.chooseDef = {
+        player: {
+          card: emptyTypeCard,
+          index: -1,
+        }, inGameDefInd: -1
+      }
+    },
+
+    defCardChoosing: (state, action: PayloadAction<interfaceChosenCard>) => {
+      const { card, index } = action.payload;
+
+      if (!(index === state.chooseDef.player.index)) {
+        state.chooseDef.player.card = card;
+        state.chooseDef.player.index = index;
       } else {
         state.chooseDef.player.card = emptyTypeCard;
         state.chooseDef.player.index = -1;
@@ -127,6 +163,20 @@ export const counterSlice = createSlice({
       state.chooseDef = {
         inGameDefInd: -1,
         player: { card: emptyTypeCard, index: -1 },
+      }
+    },
+
+    reversePlayerMove: (state) => {
+      state.inGame.atk.push(state.chooseDef.player.card);
+      state.hands.player.splice(state.chooseDef.player.index, 1);
+      state.whoseMove = "player";
+      // state.chooseDef.player.card;
+      state.chooseAtk = [];
+      state.chooseDef = {
+        player: {
+          card: emptyTypeCard,
+          index: -1,
+        }, inGameDefInd: -1
       }
     },
 
@@ -178,7 +228,7 @@ export const counterSlice = createSlice({
     },
 
     defBotAction: (state) => {
-      // console.log("bot def");
+      console.log([...state.inGame.atk]);
       for (let i in state.inGame.atk) {
         if (!state.inGame.def[i]) {
           for (let j in state.hands.bot) {
@@ -187,24 +237,32 @@ export const counterSlice = createSlice({
                 state.inGame.def[+i] = state.hands.bot[+j];
                 state.hands.bot.splice(+j, 1);
                 console.log("j: ", j, "i: ", i, "Первое");
-                return;
+                break;
               }
             } else {
               if (state.hands.bot[j].rank > state.inGame.atk[i].rank && state.hands.bot[j].suit === state.inGame.atk[i].suit) {
                 state.inGame.def[+i] = state.hands.bot[+j];
                 state.hands.bot.splice(+j, 1);
                 console.log("j: ", j, "i: ", i, "Второе");
-                return;
+                break;
               }
             }
           }
         }
       };
 
+      if (state.inGame.atk.length === state.inGame.def.length) return;
+
       state.hands.bot.splice(-1, 0, ...state.inGame.atk, ...state.inGame.def);
       state.inGame.atk = [];
       state.inGame.def = [];
-
+      state.chooseAtk = [];
+      state.chooseDef = {
+        player: {
+          card: emptyTypeCard,
+          index: -1,
+        }, inGameDefInd: -1
+      }
       //  [...state.hands.bot, ...state.inGame.atk];
     },
 
@@ -215,8 +273,15 @@ export const counterSlice = createSlice({
       state.beatenDeck = [...state.beatenDeck, ...state.inGame.def, ...state.inGame.atk];
       state.inGame.def = [];
       state.inGame.atk = [];
-      console.log(state.beatenDeck);
       state.whoseMove = (state.whoseMove === "player" ? "bot" : "player");
+      state.chooseAtk = [];
+      state.chooseDef = {
+        player: {
+          card: emptyTypeCard,
+          index: -1,
+        }, inGameDefInd: -1
+      }
+      // state.chooseDef.player = { card: emptyTypeCard, index: -1 };
     }
 
   },
@@ -227,9 +292,12 @@ export const {
   deckShuffling,
   defineQueue,
   atkPlayerAction,
+  tossCardPlayer,
+  tossCardChoosing,
   defCardChoosing,
   defIndexChoosing,
   defPlayerAction,
+  reversePlayerMove,
   pickCards,
   giveCardToBot,
   giveCardToPlayer,

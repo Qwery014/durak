@@ -6,7 +6,7 @@ import PlayTablePage from './pages/PlayTablePage';
 function App() {
   return (
     <>
-      <MainRoutes />
+      {/* <MainRoutes /> */}
       <PlayTablePage />
     </>
   );

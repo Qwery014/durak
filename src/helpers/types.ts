@@ -18,8 +18,13 @@ export interface interfaceHands {
   bot: typeCard[],
 }
 
+export interface interfaceChosenCard {
+  card: typeCard,
+  index: number,
+}
+
 export interface interfaceChooseDef {
-  player: { card: typeCard, index: number },
+  player: interfaceChosenCard,
   inGameDefInd: number,
 }
 
@@ -28,6 +33,7 @@ export interface interfaceCardsState {
   hands: interfaceHands,
   inGame: interfaceInGame,
   chooseDef: interfaceChooseDef,
+  chooseAtk: number[],
   whoseMove: string,
   trump: string,
   beatenDeck: typeCard[],
@@ -43,3 +49,5 @@ export interface interfaceAtkAction {
   card: typeCard,
   index: number,
 }
+
+
