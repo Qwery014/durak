@@ -75,12 +75,12 @@ export const deck: typeCard[] = [
 //   { name: '2 ♥️', suit: 'Hearts', rank: 2, color: true },
 //   { name: '2 ♦️', suit: 'Diamonds', rank: 2, color: true },
 //   { name: '2 ♣️', suit: 'Clubs', rank: 2, color: false },
-//   { name: '2 ♠️', suit: 'Spades', rank: 2, color: false },
+//   { name: 'A ♥️', suit: 'Hearts', rank: 14, color: true },
 //   { name: '3 ♥️', suit: 'Hearts', rank: 3, color: true },
 //   { name: '4 ♥️', suit: 'Hearts', rank: 4, color: true },
 //   { name: 'A ♦️', suit: 'Diamonds', rank: 14, color: true },
+//   { name: '2 ♠️', suit: 'Spades', rank: 2, color: false },
 //   { name: 'A ♣️', suit: 'Clubs', rank: 14, color: false },
-//   { name: 'A ♥️', suit: 'Hearts', rank: 14, color: true },
 //   { name: 'A ♠️', suit: 'Spades', rank: 14, color: false },
 
 

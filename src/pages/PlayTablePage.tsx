@@ -27,12 +27,13 @@ const PlayTablePage: React.FC = () => {
 
     function isSuitable(): boolean {
       const res: boolean[] = [];
-      for (let i in chooseAtk) {
-        for (let j in inGame.atk) {
+      if (inGame.atk.length >= 6) return false;
+
+      for (let i in inGame.atk) {
+        for (let j in chooseAtk) {
           if (
-            getCardSign(inGame.atk[j].name) === getCardSign(hands.player[chooseAtk[i]].name) ||
-            (inGame.def[j] &&
-              getCardSign(inGame.def[j].name) === getCardSign(hands.player[chooseAtk[i]].name))
+            getCardSign(inGame.def[i].name) === getCardSign(hands.player[chooseAtk[j]].name) ||
+            getCardSign(inGame.atk[i].name) === getCardSign(hands.player[chooseAtk[j]].name)
           ) {
             res.push(true);
           } else {
@@ -40,7 +41,7 @@ const PlayTablePage: React.FC = () => {
           }
         }
       }
-      return res.every(e => e);
+      return res.some(e => e);
     }
 
     return (isChoose && isPlayer && atkLength && isSuitable());
@@ -102,6 +103,9 @@ const PlayTablePage: React.FC = () => {
           {
             deck?.map((e, i) => <Card item={e} key={i} isPlayer={false} index={i} isForDef={false} />)
           }
+        </div>
+        <div className="table__whoseMove">
+          {whoseMove}
         </div>
         <div className="table__hand opposite-hand">
           {

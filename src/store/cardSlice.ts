@@ -94,8 +94,11 @@ export const counterSlice = createSlice({
       // }
     },
 
-    tossCardChoosing: (state, action: PayloadAction<{ index: number, toggle: boolean }>) => {
-      const { index, toggle } = action.payload;
+    tossCardChoosing: (state, action: PayloadAction<{ index: number, toggle: boolean, needNull: boolean }>) => {
+      const { index, toggle, needNull } = action.payload;
+      if (needNull) {
+        state.chooseAtk = [];
+      }
       if (toggle) {
         state.chooseAtk.push(index);
       } else {

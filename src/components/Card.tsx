@@ -29,7 +29,7 @@ const Card: React.FC<CardProps> = ({ item, isPlayer, index, isForDef }) => {
     } else {
       setChosen(false);
     }
-  }, [chooseDef.player.index, chooseAtk.length]);
+  }, [chooseDef.player.index, [...chooseAtk]]);
 
 
   function handleClick() {
@@ -45,9 +45,13 @@ const Card: React.FC<CardProps> = ({ item, isPlayer, index, isForDef }) => {
     if (isPlayer && whoseMove === "player") {
       if (inGame.atk.length === 0) {
         dispatch(atkPlayerAction({ card: item, index }));
-      } else if (!chooseAtk.length || chooseAtk.filter(e => getCardSign(hands.player[e].name) === getCardSign(item.name)).length) {
+      } else if (chooseAtk.filter(e => getCardSign(hands.player[e].name) === getCardSign(item.name)).length) {
         dispatch(tossCardChoosing({
-          index: index, toggle: !chosen,
+          index: index, toggle: !chosen, needNull: false
+        }));
+      } else if (!(chooseAtk.filter(e => getCardSign(hands.player[e].name) === getCardSign(item.name)).length)) {
+        dispatch(tossCardChoosing({
+          index: index, toggle: !chosen, needNull: true
         }));
       }
     }
