@@ -69,14 +69,12 @@ export const counterSlice = createSlice({
 
       for (let i of arr) {
         if (i.ranks[0] < smallTrumpPlayer.rank) {
-          smallTrumpPlayer.username = "player" || i.username;
+          smallTrumpPlayer.username = i.username;
           smallTrumpPlayer.rank = i.ranks[0];
         }
       }
 
-      state.whoseMove =
-        // "player" ||
-        smallTrumpPlayer.username;
+      state.whoseMove = smallTrumpPlayer.username;
       console.log(state.whoseMove);
     },
 
