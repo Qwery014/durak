@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { deck, emptyTypeCard, typeCard } from '../helpers/consts'
-import { interfaceAtkAction, interfaceCardsState, interfaceChosenCard, interfaceQueueRes, interfaceSortedArrays } from '../helpers/types'
+import { deck, emptyTypeCard, suitsList, typeCard } from '../helpers/consts'
+import { interfaceAtkAction, interfaceCardsState, interfaceChosenCard, interfaceQueueRes, interfaceSortedArrays, interfaceSortedCards } from '../helpers/types'
+import { getCardSign } from '../helpers/functions'
 
 const initialState: interfaceCardsState = {
   deck: [],
@@ -15,6 +16,7 @@ const initialState: interfaceCardsState = {
   whoseMove: "",
   trump: "",
   beatenDeck: [],
+  isBotBeat: true
 }
 
 export const counterSlice = createSlice({
@@ -27,16 +29,18 @@ export const counterSlice = createSlice({
         let j = Math.floor(Math.random() * (i + 1));
         [shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]];
       }
+      // shuffledDeck = deck;
 
       // Козырь
-      state.trump = shuffledDeck[shuffledDeck.length - 1].suit;
+      state.trump = getCardSign(shuffledDeck[shuffledDeck.length - 1].name, true);
       console.log(state.trump);
 
       shuffledDeck.forEach(e => {
-        if (e.suit === state.trump) e.rank += 15;
+        if (getCardSign(e.name, true) === state.trump) e.rank += 15;
       })
 
       state.deck = JSON.parse(JSON.stringify(shuffledDeck));
+      // state.deck = deck;
 
       console.log(state.deck)
 
@@ -65,12 +69,14 @@ export const counterSlice = createSlice({
 
       for (let i of arr) {
         if (i.ranks[0] < smallTrumpPlayer.rank) {
-          smallTrumpPlayer.username = i.username;
+          smallTrumpPlayer.username = "player" || i.username;
           smallTrumpPlayer.rank = i.ranks[0];
         }
       }
 
-      state.whoseMove = smallTrumpPlayer.username;
+      state.whoseMove =
+        // "player" ||
+        smallTrumpPlayer.username;
       console.log(state.whoseMove);
     },
 
@@ -232,33 +238,165 @@ export const counterSlice = createSlice({
 
     defBotAction: (state) => {
       console.log([...state.inGame.atk]);
-      for (let i in state.inGame.atk) {
-        if (!state.inGame.def[i]) {
-          for (let j in state.hands.bot) {
-            if (state.hands.bot[j].rank > 15) {
-              if (state.hands.bot[j].rank > state.inGame.atk[i].rank) {
-                state.inGame.def[+i] = state.hands.bot[+j];
-                state.hands.bot.splice(+j, 1);
-                console.log("j: ", j, "i: ", i, "Первое");
+      // !Reverse the move
+      if (!state.inGame.def.length) {
+        for (let i in state.hands.bot) {
+          if (getCardSign(state.inGame.atk[0].name) === getCardSign(state.hands.bot[i].name)) {
+            state.inGame.atk.push(state.hands.bot[i]);
+            state.hands.bot.splice(+i, 1);
+            state.whoseMove = "bot";
+            // state.chooseDef.player.card;
+            return;
+          }
+        }
+      }
+
+      // ! Defend by first finding card
+      // for (let i in state.inGame.atk) {
+      //   if (!state.inGame.def[i]) {
+      //     for (let j in state.hands.bot) {
+      //       if (state.hands.bot[j].rank > 15) {
+      //         if (state.hands.bot[j].rank > state.inGame.atk[i].rank) {
+      //           state.inGame.def[+i] = state.hands.bot[+j];
+      //           state.hands.bot.splice(+j, 1);
+      //           console.log("atk:", state.inGame.atk[i]?.name, "\n", "def:", state.inGame.def.length[i]?.name)
+      //           if (state.inGame.atk.length === state.inGame.def.length) break;
+      //           continue;
+      //         }
+      //       } else if (state.hands.bot[j].rank > state.inGame.atk[i].rank && state.hands.bot[j].suit === state.inGame.atk[i].suit) {
+      //         state.inGame.def[+i] = state.hands.bot[+j];
+      //         state.hands.bot.splice(+j, 1);
+      //         console.log("atk:", state.inGame.atk[i]?.name, "\n", "def:", state.inGame.def.length[i]?.name);
+      //         if (state.inGame.atk.length === state.inGame.def.length) break;
+      //         continue;
+      //       } else {
+      //         console.log("gettt")
+      //         break
+      //       };
+      //     }
+      //   }
+      // };
+
+
+
+      // ! Defend structure
+      function sortCardBySuits(cardArr: typeCard[], isInGame?: boolean) {
+        const sortedCards: interfaceSortedCards = {
+          "♦️": [],
+          "♣️": [],
+          "♠️": [],
+          "♥️": [],
+        }
+
+        for (let i of suitsList) {
+          sortedCards[i] = isInGame ?
+            cardArr.filter((e, index) => getCardSign(e.name, true) == i && !state.inGame.def[index])
+            :
+            cardArr.filter(e => getCardSign(e.name, true) == i);
+
+          sortedCards[i] = sortedCards[i].sort((a: typeCard, b: typeCard) => a.rank - b.rank);
+        }
+        return sortedCards;
+      }
+
+      const atkCards = sortCardBySuits(state.inGame.atk, true);
+      const botCards = sortCardBySuits(state.hands.bot);
+
+      const defCards: typeCard[] = [];
+      Object.assign(defCards, state.inGame.def);
+
+
+      for (let i in atkCards) {
+        for (let j in atkCards[i]) {
+          let card = "";
+          if (i !== state.trump) {
+            for (let k in botCards[i]) {
+              if (botCards[i][k]?.rank > atkCards[i][j]?.rank) {
+                // Check
+                console.log("ok");
+                console.log(botCards[i][k].name);
+                // 
+                card = botCards[i][k].name;
+                // Object.assign(defCards[state.inGame.atk.indexOf(atkCards[i][j])], botCards[i][k])
+                defCards[state.inGame.atk.indexOf(atkCards[i][j])] = botCards[i][k];
+
+                botCards[i][k] = null;
                 break;
               }
-            } else {
-              if (state.hands.bot[j].rank > state.inGame.atk[i].rank && state.hands.bot[j].suit === state.inGame.atk[i].suit) {
-                state.inGame.def[+i] = state.hands.bot[+j];
-                state.hands.bot.splice(+j, 1);
-                console.log("j: ", j, "i: ", i, "Второе");
+              console.log("after");
+            }
+          }
+
+          if (!card) {
+            for (let k in botCards[state.trump]) {
+              if (
+                (state.deck.length > (state.deck.length - 15) && botCards[state.trump][k]?.rank >= 25) ||
+                (state.deck.length > (state.deck.length - 18) && botCards[state.trump][k]?.rank >= 26) ||
+                (state.deck.length == 0 && botCards[state.trump][k]?.rank >= 27)
+              ) {
+                continue;
+              };
+
+              if (botCards[state.trump][k]?.rank > atkCards[i][j]?.rank) {
+                // Check
+                console.log("okk");
+                console.log(botCards[state.trump][k].name);
+                // 
+                card = botCards[state.trump][k].name;
+                defCards[state.inGame.atk.indexOf(atkCards[i][j])] = botCards[state.trump][k];
+
+                botCards[state.trump][k] = null;
                 break;
               }
             }
+
+            console.log("konec");
+            break;
           }
         }
-      };
+      }
 
-      if (state.inGame.atk.length === state.inGame.def.length) return;
+      if (defCards.length !== state.inGame.atk.length) {
+        console.log("lllllll")
+        state.isBotBeat = false;
+      } else {
+        console.log(state.inGame.def);
+        console.log(defCards);
 
-      state.hands.bot.splice(-1, 0, ...state.inGame.atk, ...state.inGame.def);
-      state.inGame.atk = [];
-      state.inGame.def = [];
+        state.inGame.def = defCards;
+
+        console.log(state.inGame.def);
+
+        for (let i of defCards) {
+          state.hands.bot.splice(state.hands.bot.indexOf(i), 1);
+        }
+      }
+
+
+      // sortedCards
+
+
+
+      // if (state.inGame.atk.length === state.inGame.def.length) return;
+
+      // // ! Bot pick ups the cards
+      // state.hands.bot.splice(-1, 0, ...state.inGame.atk, ...state.inGame.def);
+      // state.inGame.atk = [];
+      // state.inGame.def = [];
+      // state.chooseAtk = [];
+      // state.chooseDef = {
+      //   player: {
+      //     card: emptyTypeCard,
+      //     index: -1,
+      //   }, inGameDefInd: -1
+      // }
+    },
+
+    botCanBring: (state) => {
+      state.hands.bot = [...state.hands.bot, ...state.inGame.def, ...state.inGame.atk];
+      state.inGame = { atk: [], def: [] };
+      state.whoseMove = "player";
+      state.isBotBeat = true;
       state.chooseAtk = [];
       state.chooseDef = {
         player: {
@@ -266,7 +404,6 @@ export const counterSlice = createSlice({
           index: -1,
         }, inGameDefInd: -1
       }
-      //  [...state.hands.bot, ...state.inGame.atk];
     },
 
     // Bot end
@@ -306,6 +443,7 @@ export const {
   giveCardToPlayer,
   atkBotAction,
   defBotAction,
+  botCanBring,
   partEnd,
 } = counterSlice.actions
 

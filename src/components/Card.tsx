@@ -38,14 +38,14 @@ const Card: React.FC<CardProps> = ({ item, isPlayer, index, isForDef }) => {
       if (isPlayer) {
         dispatch(defCardChoosing({ card: item, index }));
       }
+      console.log(isForDef, !inGame.def[index]);
       if (isForDef && !inGame.def[index]) {
+        console.log("log")
         dispatch(defIndexChoosing(index));
       }
     }
     if (isPlayer && whoseMove === "player") {
-      if (inGame.atk.length === 0) {
-        dispatch(atkPlayerAction({ card: item, index }));
-      } else if (chooseAtk.filter(e => getCardSign(hands.player[e].name) === getCardSign(item.name)).length) {
+      if (chooseAtk.filter(e => getCardSign(hands.player[e].name) === getCardSign(item.name)).length) {
         dispatch(tossCardChoosing({
           index: index, toggle: !chosen, needNull: false
         }));
@@ -58,15 +58,19 @@ const Card: React.FC<CardProps> = ({ item, isPlayer, index, isForDef }) => {
   }
 
   return (
-    <figure className={`card`} style={{ border: chosen ? "red 3px solid" : "" }} onClick={handleClick}>
-      <div className="card-background">
-      </div>
-      <div className="card-wrapper"
-        style={{ color: item.color ? "red" : "black" }}
-      >
-        {item.name}
-      </div>
-    </figure>
+    <>
+      {
+        item.rank ?
+          <figure className={`card`} style={{ border: chosen ? "red 3px solid" : "" }} onClick={handleClick}>
+            <div className="card-background"></div>
+            <div className="card-wrapper"
+              style={{ color: item?.color ? "red" : "black" }}
+            >
+              {item?.name}
+            </div>
+          </figure > : null
+      }
+    </>
   );
 };
 

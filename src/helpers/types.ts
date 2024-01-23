@@ -37,9 +37,15 @@ export interface interfaceCardsState {
   whoseMove: string,
   trump: string,
   beatenDeck: typeCard[],
+  isBotBeat: boolean,
 }
 
-
+export interface interfaceSortedCards {
+  "♦️": typeCard[],
+  "♣️": typeCard[],
+  "♠️": typeCard[],
+  "♥️": typeCard[],
+}
 
 
 
