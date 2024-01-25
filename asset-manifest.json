@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/durak/static/css/main.6d35df15.css",
-    "main.js": "/durak/static/js/main.797a83e3.js",
+    "main.css": "/durak/static/css/main.c50c0abe.css",
+    "main.js": "/durak/static/js/main.86ce469b.js",
     "index.html": "/durak/index.html",
-    "main.6d35df15.css.map": "/durak/static/css/main.6d35df15.css.map",
-    "main.797a83e3.js.map": "/durak/static/js/main.797a83e3.js.map"
+    "main.c50c0abe.css.map": "/durak/static/css/main.c50c0abe.css.map",
+    "main.86ce469b.js.map": "/durak/static/js/main.86ce469b.js.map"
   },
   "entrypoints": [
-    "static/css/main.6d35df15.css",
-    "static/js/main.797a83e3.js"
+    "static/css/main.c50c0abe.css",
+    "static/js/main.86ce469b.js"
   ]
 }
