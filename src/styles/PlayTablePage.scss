@@ -112,9 +112,9 @@
   }
   .opposite-hand {
     top: 0px;
-    // transform: translateX(-50%) rotateX(180deg);
+    transform: translateX(-50%) rotateX(180deg);
     .card {
-      // transform: rotateY(180deg);
+      transform: rotateY(180deg);
     }
   }
   &__playground {
