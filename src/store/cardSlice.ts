@@ -208,74 +208,20 @@ export const counterSlice = createSlice({
     atkBotAction: (state) => {
       state.inGame.atk.push(state.hands.bot[0]);
       state.hands.bot.splice(0, 1);
-
-
-
-      // const arrCardRanks: interfaceArrCardRanks[] = [];
-
-      // for (let i in state.hands.bot) {
-      //   arrCardRanks[i] = {
-      //     rank: state.hands.bot[i].name.split(" ").slice(0, 1)[0],
-      //     index: +i,
-      //   };
-      // };
-
-      // arrCardRanks.sort((a, b) => +a.rank - +b.rank);
-
-      // for (let i in arrCardRanks) {
-      //   if (arrCardRanks.filter(e => e.rank === arrCardRanks[i].rank && +e.rank).length == 2) {
-
-      //     state.inGame.atk.push(state.hands.bot[arrCardRanks[i].index]);
-      //     // state.hands.bot.splice(arrCardRanks[i].index, 1);
-      //     console.log(arrCardRanks.filter(e => e.rank === arrCardRanks[i].rank && +e.rank));
-      //     break;
-      //   }
-      // }
-
     },
 
     defBotAction: (state) => {
-      console.log([...state.inGame.atk]);
-      // !Reverse the move
+      // ! Reverse the move
       if (!state.inGame.def.length) {
         for (let i in state.hands.bot) {
           if (getCardSign(state.inGame.atk[0].name) === getCardSign(state.hands.bot[i].name)) {
             state.inGame.atk.push(state.hands.bot[i]);
             state.hands.bot.splice(+i, 1);
             state.whoseMove = "bot";
-            // state.chooseDef.player.card;
             return;
           }
         }
       }
-
-      // ! Defend by first finding card
-      // for (let i in state.inGame.atk) {
-      //   if (!state.inGame.def[i]) {
-      //     for (let j in state.hands.bot) {
-      //       if (state.hands.bot[j].rank > 15) {
-      //         if (state.hands.bot[j].rank > state.inGame.atk[i].rank) {
-      //           state.inGame.def[+i] = state.hands.bot[+j];
-      //           state.hands.bot.splice(+j, 1);
-      //           console.log("atk:", state.inGame.atk[i]?.name, "\n", "def:", state.inGame.def.length[i]?.name)
-      //           if (state.inGame.atk.length === state.inGame.def.length) break;
-      //           continue;
-      //         }
-      //       } else if (state.hands.bot[j].rank > state.inGame.atk[i].rank && state.hands.bot[j].suit === state.inGame.atk[i].suit) {
-      //         state.inGame.def[+i] = state.hands.bot[+j];
-      //         state.hands.bot.splice(+j, 1);
-      //         console.log("atk:", state.inGame.atk[i]?.name, "\n", "def:", state.inGame.def.length[i]?.name);
-      //         if (state.inGame.atk.length === state.inGame.def.length) break;
-      //         continue;
-      //       } else {
-      //         console.log("gettt")
-      //         break
-      //       };
-      //     }
-      //   }
-      // };
-
-
 
       // ! Defend structure
       function sortCardBySuits(cardArr: typeCard[], isInGame?: boolean) {
@@ -310,18 +256,12 @@ export const counterSlice = createSlice({
           if (i !== state.trump) {
             for (let k in botCards[i]) {
               if (botCards[i][k]?.rank > atkCards[i][j]?.rank) {
-                // Check
-                console.log("ok");
-                console.log(botCards[i][k].name);
-                // 
                 card = botCards[i][k].name;
-                // Object.assign(defCards[state.inGame.atk.indexOf(atkCards[i][j])], botCards[i][k])
                 defCards[state.inGame.atk.indexOf(atkCards[i][j])] = botCards[i][k];
-
                 botCards[i][k] = null;
+
                 break;
               }
-              console.log("after");
             }
           }
 
@@ -336,58 +276,28 @@ export const counterSlice = createSlice({
               };
 
               if (botCards[state.trump][k]?.rank > atkCards[i][j]?.rank) {
-                // Check
-                console.log("okk");
-                console.log(botCards[state.trump][k].name);
-                // 
                 card = botCards[state.trump][k].name;
                 defCards[state.inGame.atk.indexOf(atkCards[i][j])] = botCards[state.trump][k];
-
                 botCards[state.trump][k] = null;
+
                 break;
               }
             }
 
-            console.log("konec");
             break;
           }
         }
       }
 
       if (defCards.length !== state.inGame.atk.length) {
-        console.log("lllllll")
         state.isBotBeat = false;
       } else {
-        console.log(state.inGame.def);
-        console.log(defCards);
-
         state.inGame.def = defCards;
-
-        console.log(state.inGame.def);
 
         for (let i of defCards) {
           state.hands.bot.splice(state.hands.bot.indexOf(i), 1);
         }
       }
-
-
-      // sortedCards
-
-
-
-      // if (state.inGame.atk.length === state.inGame.def.length) return;
-
-      // // ! Bot pick ups the cards
-      // state.hands.bot.splice(-1, 0, ...state.inGame.atk, ...state.inGame.def);
-      // state.inGame.atk = [];
-      // state.inGame.def = [];
-      // state.chooseAtk = [];
-      // state.chooseDef = {
-      //   player: {
-      //     card: emptyTypeCard,
-      //     index: -1,
-      //   }, inGameDefInd: -1
-      // }
     },
 
     botCanBring: (state) => {
